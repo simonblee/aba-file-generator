@@ -82,13 +82,11 @@ class AbaFileGenerator
             $transactions = array($transactions);
         }
 
+        $this->validateDescription();
         $this->addDescriptiveRecord();
 
         foreach ($transactions as $transaction) {
-            if (! $transaction instanceof TransactionInterface) {
-                throw new Exception('Transactions must implement TransactionInterface.');
-            }
-
+            $this->validateTransaction($transaction);
             $this->addDetailRecord($transaction);
 
             if ($transaction->getTransactionCode() === TransactionCode::EXTERNALLY_INITIATED_DEBIT) {
@@ -113,17 +111,9 @@ class AbaFileGenerator
         $line = self::DESCRIPTIVE_TYPE;
 
         // BSB
-        if (! preg_match($this->bsbRegex, $this->bsb)) {
-            throw new Exception('Descriptive record bsb is invalid. Required format is 000-000.');
-        }
-
         $line .= $this->bsb;
 
         // Account Number
-        if (! preg_match('/^[\d]{0,9}$/', $this->accountNumber)) {
-            throw new Exception('Descriptive record account number is invalid. Must be up to 9 digits only.');
-        }
-
         $line .= str_pad($this->accountNumber, 9, ' ', STR_PAD_LEFT);
 
         // Reserved - must be a single blank space
@@ -133,33 +123,18 @@ class AbaFileGenerator
         $line .= '01';
 
         // Bank Name
-        if (! preg_match('/^[A-Z]{3}$/', $this->bankName)) {
-            throw new Exception('Descriptive record bank name is invalid. Must be capital letter abbreviation of length 3.');
-        }
-
         $line .= $this->bankName;
 
         // Reserved - must be seven blank spaces
         $line .= str_repeat(' ', 7);
 
         // User Name
-        if (! preg_match('/^[A-Za-z\s+]{0,26}$/', $this->userName)) {
-            throw new Exception('Descriptive record user name is invalid. Must be letters only and up to 26 characters long.');
-        }
         $line .= str_pad($this->userName, 26, ' ', STR_PAD_RIGHT);
 
         // User ID
-        if (! preg_match('/^[\d]{6}$/', $this->directEntryUserId)) {
-            throw new Exception('Descriptive record direct entiry user ID is invalid. Must be 6 digits long.');
-        }
-
         $line .= $this->directEntryUserId;
 
         // File Description
-        if (! preg_match('/^[A-Za-z]{0,12}$/', $this->description)) {
-            throw new Exception('Descriptive record description is invalid. Must be letters only and up to 12 characters long.');
-        }
-
         $line .= str_pad($this->description, 12, ' ', STR_PAD_RIGHT);
 
         // Processing Date
@@ -183,31 +158,15 @@ class AbaFileGenerator
         $line = self::DETAIL_TYPE;
 
         // BSB
-        if (! preg_match($this->bsbRegex, $transaction->getBsb())) {
-            throw new InvalidBsbException('Detail record bsb is invalid: '.$transaction->getBsb().'. Required format is 000-000.');
-        }
-
         $line .= $transaction->getBsb();
 
         // Account Number
-        if (! preg_match('/^[\d]{0,9}$/', $transaction->getAccountNumber())) {
-            throw new Exception('Detail record account number is invalid. Must be up to 9 digits only.');
-        }
-
         $line .= str_pad($transaction->getAccountNumber(), 9, ' ', STR_PAD_LEFT);
 
         // Indicator
-        if ($transaction->getIndicator() && ! preg_match('/^W|X|Y| /', $transaction->getIndicator())) {
-            throw new Exception('Detail transaction indicator is invalid. Must be one of W, X, Y or null.');
-        }
-
         $line .= $transaction->getIndicator() ?: ' ';
 
         // Transaction Code
-        if (! $this->validateTransactionCode($transaction->getTransactionCode())) {
-            throw new Exception('Detail record transaction code invalid.');
-        }
-
         $line .= $transaction->getTransactionCode();
 
         // Transaction Amount
@@ -268,6 +227,62 @@ class AbaFileGenerator
     private function addLine($line, $crlf = true)
     {
         $this->abaString .= $line.($crlf ? "\r\n" : "");
+    }
+
+    /**
+     * Validate the parts of the descriptive record.
+     */
+    private function validateDescription()
+    {
+        if (! preg_match($this->bsbRegex, $this->bsb)) {
+            throw new Exception('Descriptive record bsb is invalid. Required format is 000-000.');
+        }
+
+        if (! preg_match('/^[\d]{0,9}$/', $this->accountNumber)) {
+            throw new Exception('Descriptive record account number is invalid. Must be up to 9 digits only.');
+        }
+
+        if (! preg_match('/^[A-Z]{3}$/', $this->bankName)) {
+            throw new Exception('Descriptive record bank name is invalid. Must be capital letter abbreviation of length 3.');
+        }
+
+        if (! preg_match('/^[A-Za-z\s+]{0,26}$/', $this->userName)) {
+            throw new Exception('Descriptive record user name is invalid. Must be letters only and up to 26 characters long.');
+        }
+
+        if (! preg_match('/^[\d]{6}$/', $this->directEntryUserId)) {
+            throw new Exception('Descriptive record direct entiry user ID is invalid. Must be 6 digits long.');
+        }
+
+        if (! preg_match('/^[A-Za-z]{0,12}$/', $this->description)) {
+            throw new Exception('Descriptive record description is invalid. Must be letters only and up to 12 characters long.');
+        }
+    }
+
+    /**
+     * Validate the parts of the transaction.
+     */
+    private function validateTransaction($transaction)
+    {
+        if (! $transaction instanceof TransactionInterface) {
+            throw new Exception('Transactions must implement TransactionInterface.');
+        }
+
+        if (! preg_match($this->bsbRegex, $transaction->getBsb())) {
+            throw new InvalidBsbException('Detail record bsb is invalid: '.$transaction->getBsb().'. Required format is 000-000.');
+        }
+
+        if (! preg_match('/^[\d]{0,9}$/', $transaction->getAccountNumber())) {
+            throw new Exception('Detail record account number is invalid. Must be up to 9 digits only.');
+        }
+
+        if ($transaction->getIndicator() && ! preg_match('/^W|X|Y| /', $transaction->getIndicator())) {
+            throw new Exception('Detail transaction indicator is invalid. Must be one of W, X, Y or null.');
+        }
+
+        if (! $this->validateTransactionCode($transaction->getTransactionCode())) {
+            throw new Exception('Detail record transaction code invalid.');
+        }
     }
 
     private function validateTransactionCode($transactionCode)
