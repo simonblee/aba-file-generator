@@ -4,6 +4,7 @@ namespace AbaFileGenerator\Generator;
 
 use AbaFileGenerator\Exception\InvalidTransactionException;
 use AbaFileGenerator\Model\TransactionInterface;
+use AbaFileGenerator\Model\TransactionCode;
 use \Exception;
 
 class AbaFileGenerator
@@ -28,13 +29,48 @@ class AbaFileGenerator
     private $debitTotal = 0;
 
     /**
+     * @var string
+     */
+    private $bsb;
+
+    /**
+     * @var string
+     */
+    private $accountNumber;
+
+    /**
+     * @var string
+     */
+    private $bankName;
+
+    /**
+     * @var string
+     */
+    private $userName;
+
+    /**
+     * @var string
+     */
+    private $directEntryUserId;
+
+    /**
+     * @var string
+     */
+    private $description;
+
+    /**
      * Validates that the BSB is 6 digits with a dash in the middle: 123-456
      */
     private $bsbRegex = '/^[\d]{3}-[\d]{3}$/';
 
-    public function __construct()
+    public function __construct($bsb, $accountNumber, $bankName, $userName, $directEntryUserId, $description)
     {
-
+        $this->bsb = $bsb;
+        $this->accountNumber = $accountNumber;
+        $this->bankName = $bankName;
+        $this->userName = $userName;
+        $this->directEntryUserId = $directEntryUserId;
+        $this->description = $description;
     }
 
     /**
@@ -55,10 +91,10 @@ class AbaFileGenerator
 
             $this->addDetailRecord($transaction);
 
-            if ($transaction->getTransactionCode() === TransactionInterface::EXTERNALLY_INITIATED_DEBIT) {
-                $this->debitTotal += $this->getAmount();
+            if ($transaction->getTransactionCode() === TransactionCode::EXTERNALLY_INITIATED_DEBIT) {
+                $this->debitTotal += $transaction->getAmount();
             } else {
-                $this->creditTotal += $this->getAmount();
+                $this->creditTotal += $transaction->getAmount();
             }
         }
 
@@ -74,7 +110,7 @@ class AbaFileGenerator
     private function addDescriptiveRecord()
     {
         // Record Type
-        $line = DESCRIPTIVE_TYPE;
+        $line = self::DESCRIPTIVE_TYPE;
 
         // BSB
         if (! preg_match($this->bsbRegex, $this->bsb)) {
@@ -107,7 +143,10 @@ class AbaFileGenerator
         $line .= str_repeat(' ', 7);
 
         // User Name
-        $line .= str_pad($this->accountName, 26, ' ', STR_PAD_RIGHT);
+        if (! preg_match('/^[A-Za-z\s+]{0,26}$/', $this->userName)) {
+            throw new Exception('Descriptive record user name is invalid. Must be letters only and up to 26 characters long.');
+        }
+        $line .= str_pad($this->userName, 26, ' ', STR_PAD_RIGHT);
 
         // User ID
         if (! preg_match('/^[\d]{6}$/', $this->directEntryUserId)) {
@@ -117,6 +156,10 @@ class AbaFileGenerator
         $line .= $this->directEntryUserId;
 
         // File Description
+        if (! preg_match('/^[A-Za-z]{0,12}$/', $this->description)) {
+            throw new Exception('Descriptive record description is invalid. Must be letters only and up to 12 characters long.');
+        }
+
         $line .= str_pad($this->description, 12, ' ', STR_PAD_RIGHT);
 
         // Processing Date
@@ -137,7 +180,7 @@ class AbaFileGenerator
     private function addDetailRecord(TransactionInterface $transaction)
     {
         // Record Type
-        $line = DETAIL_TYPE;
+        $line = self::DETAIL_TYPE;
 
         // BSB
         if (! preg_match($this->bsbRegex, $transaction->getBsb())) {
@@ -154,7 +197,7 @@ class AbaFileGenerator
         $line .= str_pad($transaction->getAccountNumber(), 9, ' ', STR_PAD_LEFT);
 
         // Indicator
-        if ($transaction->getAccountNumber() && ! preg_match('/^W|X|Y| /', $transaction->getAccountNumber())) {
+        if ($transaction->getIndicator() && ! preg_match('/^W|X|Y| /', $transaction->getIndicator())) {
             throw new Exception('Detail transaction indicator is invalid. Must be one of W, X, Y or null.');
         }
 
@@ -193,7 +236,7 @@ class AbaFileGenerator
 
     private function addBatchControlRecord()
     {
-        $line = BATCH_TYPE;
+        $line = self::BATCH_TYPE;
 
         // BSB
         $line .= '999-999';
@@ -230,15 +273,15 @@ class AbaFileGenerator
     private function validateTransactionCode($transactionCode)
     {
         return in_array($transactionCode, array(
-            TransactionInterface::EXTERNALLY_INITIATED_DEBIT,
-            TransactionInterface::EXTERNALLY_INITIATED_CREDIT,
-            TransactionInterface::AUSTRALIAN_GOVERNMENT_SECURITY_INTEREST,
-            TransactionInterface::FAMILY_ALLOWANCE,
-            TransactionInterface::PAYROLL_PAYMENT,
-            TransactionInterface::PENSION_PAYMENT,
-            TransactionInterface::ALLOTMENT,
-            TransactionInterface::DIVIDEND,
-            TransactionInterface::DEBENTURE_OR_NOTE_INTEREST
+            TransactionCode::EXTERNALLY_INITIATED_DEBIT,
+            TransactionCode::EXTERNALLY_INITIATED_CREDIT,
+            TransactionCode::AUSTRALIAN_GOVERNMENT_SECURITY_INTEREST,
+            TransactionCode::FAMILY_ALLOWANCE,
+            TransactionCode::PAYROLL_PAYMENT,
+            TransactionCode::PENSION_PAYMENT,
+            TransactionCode::ALLOTMENT,
+            TransactionCode::DIVIDEND,
+            TransactionCode::DEBENTURE_OR_NOTE_INTEREST
         ));
     }
 }
