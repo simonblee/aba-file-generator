@@ -102,6 +102,18 @@ class Transaction implements TransactionInterface
         return $this;
     }
 
+    public function getRemitter()
+    {
+        return $this->remitter ?: null;
+    }
+
+    public function setRemitter($remitter)
+    {
+        $this->remitter = $remitter;
+
+        return $this;
+    }
+
     public function getTaxWithholding()
     {
         return $this->taxWithholding ?: 0;

@@ -44,9 +44,19 @@ class AbaFileGenerator
     private $bankName;
 
     /**
+     * The name of the user supplying the aba file. Some banks must match
+     * account holder or be specified as "SURNAME Firstname".
+     *
      * @var string
      */
     private $userName;
+
+    /**
+     * Appears of recipient's statement as origin of transaction.
+     *
+     * @var string
+     */
+    private $remitter;
 
     /**
      * @var string
@@ -63,12 +73,13 @@ class AbaFileGenerator
      */
     private $bsbRegex = '/^[\d]{3}-[\d]{3}$/';
 
-    public function __construct($bsb, $accountNumber, $bankName, $userName, $directEntryUserId, $description)
+    public function __construct($bsb, $accountNumber, $bankName, $userName, $remitter, $directEntryUserId, $description)
     {
         $this->bsb = $bsb;
         $this->accountNumber = $accountNumber;
         $this->bankName = $bankName;
         $this->userName = $userName;
+        $this->remitter = $remitter;
         $this->directEntryUserId = $directEntryUserId;
         $this->description = $description;
     }
@@ -82,11 +93,11 @@ class AbaFileGenerator
             $transactions = array($transactions);
         }
 
-        $this->validateDescription();
+        $this->validateDescriptiveRecord();
         $this->addDescriptiveRecord();
 
         foreach ($transactions as $transaction) {
-            $this->validateTransaction($transaction);
+            $this->validateDetailRecord($transaction);
             $this->addDetailRecord($transaction);
 
             if ($transaction->getTransactionCode() === TransactionCode::EXTERNALLY_INITIATED_DEBIT) {
@@ -182,10 +193,11 @@ class AbaFileGenerator
         $line .= $this->bsb;
 
         // Trace Account Number - already validated
-        $line .= str_pad($this->accountNumber, 9, ' ', STR_PAD_RIGHT);
+        $line .= str_pad($this->accountNumber, 9, ' ', STR_PAD_LEFT);
 
         // Remitter Name - already validated
-        $line .= str_pad($this->accountName, 16, ' ', STR_PAD_RIGHT);
+        $remitter = $transaction->getRemitter() ?: $this->remitter;
+        $line .= str_pad($remitter, 16, ' ', STR_PAD_RIGHT);
 
         // Withholding amount
         $line .= str_pad($transaction->getTaxWithholding(), 8, '0', STR_PAD_LEFT);
@@ -232,7 +244,7 @@ class AbaFileGenerator
     /**
      * Validate the parts of the descriptive record.
      */
-    private function validateDescription()
+    private function validateDescriptiveRecord()
     {
         if (! preg_match($this->bsbRegex, $this->bsb)) {
             throw new Exception('Descriptive record bsb is invalid. Required format is 000-000.');
@@ -262,7 +274,7 @@ class AbaFileGenerator
     /**
      * Validate the parts of the transaction.
      */
-    private function validateTransaction($transaction)
+    private function validateDetailRecord($transaction)
     {
         if (! $transaction instanceof TransactionInterface) {
             throw new Exception('Transactions must implement TransactionInterface.');
@@ -277,7 +289,15 @@ class AbaFileGenerator
         }
 
         if ($transaction->getIndicator() && ! preg_match('/^W|X|Y| /', $transaction->getIndicator())) {
-            throw new Exception('Detail transaction indicator is invalid. Must be one of W, X, Y or null.');
+            throw new Exception('Detail record transaction indicator is invalid. Must be one of W, X, Y or null.');
+        }
+
+        if (! preg_match('/^[A-Za-z\s+]{0,18}$/', $transaction->getReference())) {
+            throw new Exception('Detail record reference is invalid. Must be letters only and up to 18 characters long.');
+        }
+
+        if ($transaction->getRemitter() && ! preg_match('/^[A-Za-z\s+]{0,16}$/', $transaction->getRemitter())) {
+            throw new Exception('Detail record remitter is invalid. Must be letters only and up to 16 characters long.');
         }
 
         if (! $this->validateTransactionCode($transaction->getTransactionCode())) {

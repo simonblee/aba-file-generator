@@ -70,6 +70,13 @@ interface TransactionInterface
     public function getReference();
 
     /**
+     * Name of originator of entry.
+     *
+     * @return null|string
+     */
+    public function getRemitter();
+
+    /**
      * Amount of tax withholding. Return zero if not withholding any amount.
      *
      * @return integer
