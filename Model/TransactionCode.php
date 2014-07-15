@@ -2,7 +2,7 @@
 
 namespace AbaFileGenerator\Model;
 
-interface TransactionCode
+class TransactionCode
 {
     const EXTERNALLY_INITIATED_DEBIT = '13';
     const EXTERNALLY_INITIATED_CREDIT = '50';

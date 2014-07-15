@@ -29,6 +29,11 @@ class AbaFileGenerator
     private $debitTotal = 0;
 
     /**
+     * @var integer
+     */
+    private $numberRecords = 0;
+
+    /**
      * @var string
      */
     private $bsb;
@@ -215,13 +220,13 @@ class AbaFileGenerator
         // Reserved - must be twelve blank spaces
         $line .= str_repeat(' ', 12);
 
-        // Batch Net Total - 10
+        // Batch Net Total
         $line .= str_pad(($this->creditTotal - $this->debitTotal), 10, '0', STR_PAD_LEFT);
 
-        // Batch Credits Total - 10
+        // Batch Credits Total
         $line .= str_pad($this->creditTotal, 10, '0', STR_PAD_LEFT);
 
-        // Batch Debits Total - 10
+        // Batch Debits Total
         $line .= str_pad($this->debitTotal, 10, '0', STR_PAD_LEFT);
 
         // Reserved - must be 24 blank spaces
@@ -301,7 +306,7 @@ class AbaFileGenerator
         }
 
         if (! $this->validateTransactionCode($transaction->getTransactionCode())) {
-            throw new Exception('Detail record transaction code invalid.');
+            throw new Exception('Detail record transaction code invalid. Must be a constant from AbaFileGenerator\Model\TransactionCode.');
         }
     }
 
