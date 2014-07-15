@@ -21,3 +21,7 @@ is provided with the library but may be too simple for your project:
 
 Generate the aba string and save into a file (or whatever else you want):
 
+## References
+http://www.anz.com/Documents/AU/corporate/clientfileformats.pdf
+http://www.cemtexaba.com/aba-format/cemtex-aba-file-format-details.html
+https://github.com/mjec/aba/blob/master/sample-with-comments.aba
