@@ -1,5 +1,5 @@
 {
-    "name": "aba-file-generator",
+    "name": "simonblee/aba-file-generator",
     "description": "Generate ABA bank transaction files from a collection of transactions.",
     "type": "vcs",
     "license": "MIT",
