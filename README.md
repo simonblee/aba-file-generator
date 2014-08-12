@@ -1,5 +1,4 @@
 # ABA File Generator
-[![Build Status](https://secure.travis-ci.org/simonblee/generator-marionette.png?branch=master)](https://travis-ci.org/simonblee/generator-marionette)
 
 ## Overview
 Generates an aba file for bulk banking transactions with Australian banks.
