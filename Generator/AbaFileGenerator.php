@@ -271,7 +271,7 @@ class AbaFileGenerator
             throw new Exception('Descriptive record direct entiry user ID is invalid. Must be 6 digits long.');
         }
 
-        if (! preg_match('/^[A-Za-z]{0,12}$/', $this->description)) {
+        if (! preg_match('/^[A-Za-z\s]{0,12}$/', $this->description)) {
             throw new Exception('Descriptive record description is invalid. Must be letters only and up to 12 characters long.');
         }
     }
@@ -286,7 +286,7 @@ class AbaFileGenerator
         }
 
         if (! preg_match($this->bsbRegex, $transaction->getBsb())) {
-            throw new InvalidBsbException('Detail record bsb is invalid: '.$transaction->getBsb().'. Required format is 000-000.');
+            throw new Exception('Detail record bsb is invalid: '.$transaction->getBsb().'. Required format is 000-000.');
         }
 
         if (! preg_match('/^[\d]{0,9}$/', $transaction->getAccountNumber())) {
@@ -297,8 +297,8 @@ class AbaFileGenerator
             throw new Exception('Detail record transaction indicator is invalid. Must be one of W, X, Y or null.');
         }
 
-        if (! preg_match('/^[A-Za-z\s+]{0,18}$/', $transaction->getReference())) {
-            throw new Exception('Detail record reference is invalid. Must be letters only and up to 18 characters long.');
+        if (! preg_match('/^[A-Za-z0-9\s+]{0,18}$/', $transaction->getReference())) {
+            throw new Exception('Detail record reference is invalid: "'.$transaction->getReference().'". Must be letters only and up to 18 characters long.');
         }
 
         if ($transaction->getRemitter() && ! preg_match('/^[A-Za-z\s+]{0,16}$/', $transaction->getRemitter())) {
