@@ -16,6 +16,7 @@ class Transaction implements TransactionInterface
     private $indicator;
     private $transactionCode;
     private $reference;
+    private $remitter;
     private $taxWithholding;
 
     public function getAccountName()
