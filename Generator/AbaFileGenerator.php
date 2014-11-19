@@ -221,7 +221,7 @@ class AbaFileGenerator
         $line .= str_repeat(' ', 12);
 
         // Batch Net Total
-        $line .= str_pad(($this->creditTotal - $this->debitTotal), 10, '0', STR_PAD_LEFT);
+        $line .= str_pad(abs($this->creditTotal - $this->debitTotal), 10, '0', STR_PAD_LEFT);
 
         // Batch Credits Total
         $line .= str_pad($this->creditTotal, 10, '0', STR_PAD_LEFT);
