@@ -15,6 +15,9 @@ As always, if you notice any errors please submit an issue or even better, a pul
 ## Usage
 Create a generator object with the descriptive type information for this aba file:
 ```php
+use AbaFileGenerator\Model\Transaction;
+use AbaFileGenerator\Generator\AbaFileGenerator;
+
 $generator = new AbaFileGenerator(
     '123-456', // bsb
     '12345678', // account number
