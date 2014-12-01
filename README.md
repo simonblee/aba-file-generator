@@ -43,7 +43,7 @@ $transaction->setAmount(...);
 
 Generate the aba string and save into a file (or whatever else you want):
 ```php
-$abaString = $generator->generate($transaction);
+$abaString = $generator->generate($transaction); // $transaction could also be an array here
 file_put_contents('/my/aba/file.aba', $abaString);
 ```
 
