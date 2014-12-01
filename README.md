@@ -39,7 +39,10 @@ $transaction->setAmount(...);
 ```
 
 Generate the aba string and save into a file (or whatever else you want):
-$generator->generate(
+```php
+$abaString = $generator->generate($transaction);
+file_put_contents('/my/aba/file.aba', $abaString);
+```
 
 ## References
 - http://www.anz.com/Documents/AU/corporate/clientfileformats.pdf
