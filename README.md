@@ -29,7 +29,7 @@ $generator = new AbaFileGenerator(
 );
 ```
 
-Create an array (or single) of objects implementing TransactionInterface. A simple Transaction object
+Create an array (or single) of objects implementing `AbaFileGenerator\Model\TransactionInterface`. A simple Transaction object
 is provided with the library but may be too simple for your project:
 ```php
 $transaction = new Transaction();
