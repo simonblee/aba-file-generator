@@ -14,11 +14,32 @@ As always, if you notice any errors please submit an issue or even better, a pul
 
 ## Usage
 Create a generator object with the descriptive type information for this aba file:
+```php
+$generator = new AbaFileGenerator(
+    '123-456', // bsb
+    '12345678', // account number
+    'CBA', // bank name
+    'User Name',
+    'Remitter',
+    '175029', // direct entry id for CBA
+    'Payroll' // description
+);
+```
 
 Create an array (or single) of objects implementing TransactionInterface. A simple Transaction object
 is provided with the library but may be too simple for your project:
+```php
+$transaction = new Transaction();
+$transaction->setAccountName(...);
+$transaction->setAccountNumber(...);
+$transaction->setBsb(...);
+$transaction->setTransactionCode(...);
+$transaction->setReference(...);
+$transaction->setAmount(...);
+```
 
 Generate the aba string and save into a file (or whatever else you want):
+$generator->generate(
 
 ## References
 - http://www.anz.com/Documents/AU/corporate/clientfileformats.pdf
