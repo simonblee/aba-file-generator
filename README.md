@@ -12,6 +12,10 @@ As always, if you notice any errors please submit an issue or even better, a pul
 ## License
 [MIT License](http://en.wikipedia.org/wiki/MIT_License)
 
+## Installation
+Copy the files where needed or install via composer:
+`composer require simonblee/aba-file-generator`
+
 ## Usage
 Create a generator object with the descriptive type information for this aba file:
 ```php
