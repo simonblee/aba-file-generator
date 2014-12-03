@@ -14,7 +14,9 @@ As always, if you notice any errors please submit an issue or even better, a pul
 
 ## Installation
 Copy the files where needed or install via composer:
-`composer require simonblee/aba-file-generator`
+```bash
+composer require simonblee/aba-file-generator
+```
 
 ## Usage
 Create a generator object with the descriptive type information for this aba file:
