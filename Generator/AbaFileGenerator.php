@@ -2,7 +2,6 @@
 
 namespace AbaFileGenerator\Generator;
 
-use AbaFileGenerator\Exception\InvalidTransactionException;
 use AbaFileGenerator\Model\TransactionInterface;
 use AbaFileGenerator\Model\TransactionCode;
 use \Exception;
