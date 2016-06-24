@@ -56,7 +56,7 @@ class AbaFileGenerator
     private $userName;
 
     /**
-     * Appears of recipient's statement as origin of transaction.
+     * Appears on recipient's statement as origin of transaction.
      *
      * @var string
      */
