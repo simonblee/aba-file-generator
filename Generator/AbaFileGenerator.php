@@ -73,6 +73,15 @@ class AbaFileGenerator
     private $description;
 
     /**
+     * The date transactions are released to all Financial Institutions.
+     * 
+     * Defaults to today.
+     * 
+     * @var int|string|DateTime
+     */
+    private $processingDate;
+
+    /**
      * Validates that the BSB is 6 digits with a dash in the middle: 123-456
      */
     private $bsbRegex = '/^[\d]{3}-[\d]{3}$/';
@@ -86,6 +95,19 @@ class AbaFileGenerator
         $this->remitter = $remitter;
         $this->directEntryUserId = $directEntryUserId;
         $this->description = $description;
+        $this->processingDate = time();
+    }
+
+    /**
+     * Set the processing date.
+     * 
+     * @param int|string|DateTime $date
+     */
+    public function setProcessingDate($date)
+    {
+        $this->processingDate = $date;
+
+        return $this;
     }
 
     /**
@@ -153,13 +175,10 @@ class AbaFileGenerator
         $line .= str_pad($this->description, 12, ' ', STR_PAD_RIGHT);
 
         // Processing Date
-        $line .= date('dmy');
+        $line .= date('dmy', is_numeric($this->processingDate) ? $this->processingDate : strtotime($this->processingDate));
 
-        // Processing Time
-        $line .= str_repeat(' ', 4);
-
-        // Reserved - 36 blank spaces
-        $line .= str_repeat(' ', 36);
+        // Reserved - 40 blank spaces
+        $line .= str_repeat(' ', 40);
 
         $this->addLine($line);
     }
