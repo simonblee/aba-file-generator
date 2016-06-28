@@ -33,6 +33,9 @@ $generator = new AbaFileGenerator(
     '175029', // direct entry id for CBA
     'Payroll' // description
 );
+
+// Set a custom processing date if required
+$generator->setProcessingDate('tomorrow');
 ```
 
 Create an object or array of objects implementing `AbaFileGenerator\Model\TransactionInterface`. A simple Transaction object
