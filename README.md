@@ -3,12 +3,6 @@
 ## Overview
 Generates an aba file for bulk banking transactions with Australian banks.
 
-## Project Status:
-This library is very new and all test cases are not accounted for. It is recommended
-that you run a few manual tests and validate the file with your banking institute.
-
-As always, if you notice any errors please submit an issue or even better, a pull request.
-
 ## License
 [MIT License](http://en.wikipedia.org/wiki/MIT_License)
 
