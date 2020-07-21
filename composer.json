@@ -1,18 +1,22 @@
 {
-    "name": "simonblee/aba-file-generator",
-    "description": "Generate ABA bank transaction files from a collection of transactions.",
+    "name": "bruno-rodrigues/aba-file-generator",
+    "description": "Generate ABA bank transaction files from a collection of transactions. Forked from simonblee/aba-file-generator",
     "type": "vcs",
     "license": "MIT",
     "minimum-stability": "dev",
     "require": {
-        "php": ">=5.3"
+        "php": ">=7.3"
     },
     "require-dev": {
         "phpunit/phpunit": "3.7.*",
-        "squizlabs/PHP_CodeSniffer": "1.*"
+        "squizlabs/php_codesniffer": "1.*"
     },
     "autoload": {
-        "psr-0": { "AbaFileGenerator\\": "" }
+        "psr-4": { "AbaFileGenerator\\": "" }
     },
-    "target-dir": "AbaFileGenerator"
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "Tests/"
+        }
+    }
 }

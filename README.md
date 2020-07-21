@@ -1,4 +1,4 @@
-# ABA File Generator
+# ABA File Generator (NAB specs)
 
 ## Overview
 Generates an aba file for bulk banking transactions with Australian banks.
@@ -9,13 +9,12 @@ Generates an aba file for bulk banking transactions with Australian banks.
 ## Installation
 Copy the files where needed or install via composer:
 ```bash
-composer require simonblee/aba-file-generator
+composer require bruno-rodrigues/aba-file-generator
 ```
 
 ## Usage
 Create a generator object with the descriptive type information for this aba file:
 ```php
-use AbaFileGenerator\Model\Transaction;
 use AbaFileGenerator\Generator\AbaFileGenerator;
 
 $generator = new AbaFileGenerator(
@@ -35,6 +34,8 @@ $generator->setProcessingDate('tomorrow');
 Create an object or array of objects implementing `AbaFileGenerator\Model\TransactionInterface`. A simple Transaction object
 is provided with the library but may be too simple for your project:
 ```php
+use AbaFileGenerator\Model\Transaction;
+
 $transaction = new Transaction();
 $transaction->setAccountName(...);
 $transaction->setAccountNumber(...);
@@ -51,6 +52,4 @@ file_put_contents('/my/aba/file.aba', $abaString);
 ```
 
 ## References
-- http://www.anz.com/Documents/AU/corporate/clientfileformats.pdf
-- http://www.cemtexaba.com/aba-format/cemtex-aba-file-format-details.html
-- https://github.com/mjec/aba/blob/master/sample-with-comments.aba
+- https://www.nab.com.au/content/dam/nabconnectcontent/file-formats/nab-connect-consolidated-file-format-specification_v0.05-pdf.pdf
