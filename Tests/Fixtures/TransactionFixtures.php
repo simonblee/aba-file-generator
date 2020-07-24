@@ -39,7 +39,7 @@ class TransactionFixtures
         $t4->setBsb('082-888'); // NAB
         $t4->setAmount(123456);
         $t4->setTransactionCode(TransactionCode::PAYROLL_PAYMENT);
-        $t4->setReference('Your salary');
+        $t4->setReference('12345-12345');
 
         return array($t1, $t2, $t3, $t4);
     }

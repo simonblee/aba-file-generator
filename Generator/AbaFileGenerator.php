@@ -303,8 +303,8 @@ class AbaFileGenerator
             throw new Exception('Detail record transaction indicator is invalid. Must be one of W, X, Y or null.');
         }
 
-        if (! preg_match('/^[A-Za-z0-9\s+]{0,18}$/', $transaction->getReference())) {
-            throw new Exception('Detail record reference is invalid: "'.$transaction->getReference().'". Must be letters only and up to 18 characters long.');
+        if (! preg_match('/^[A-Za-z0-9\s+\-]{0,18}$/', $transaction->getReference())) {
+            throw new Exception('Detail record reference is invalid: "'.$transaction->getReference().'". Must respect [A-Za-z0-9\s+\-] and up to 18 characters long.');
         }
 
         if ($transaction->getRemitter() && ! preg_match('/^[A-Za-z\s+]{0,16}$/', $transaction->getRemitter())) {
