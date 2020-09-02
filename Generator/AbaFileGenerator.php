@@ -190,8 +190,7 @@ class AbaFileGenerator
         $line .= $transaction->getBsb();
 
         // Account Number
-        $fill = strpos($transaction->getBsb(), '08') === 0 ? '0' : ' ';
-        $line .= str_pad($transaction->getAccountNumber(), 9, $fill, STR_PAD_LEFT);
+        $line .= str_pad($transaction->getAccountNumber(), 9, 0, STR_PAD_LEFT);
 
         // Indicator
         $line .= $transaction->getIndicator() ?: ' ';
