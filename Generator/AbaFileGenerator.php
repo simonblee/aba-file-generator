@@ -82,6 +82,11 @@ class AbaFileGenerator
     private $processingDate;
 
     /**
+     * @var bool
+     */
+    private $includeAccountNumberInDescriptiveRecord = true;
+
+    /**
      * Validates that the BSB is 6 digits with a dash in the middle: 123-456
      */
     private $bsbRegex = '/^[\d]{3}-[\d]{3}$/';
@@ -106,6 +111,21 @@ class AbaFileGenerator
     public function setProcessingDate($date)
     {
         $this->processingDate = $date;
+
+        return $this;
+    }
+
+    /**
+     * Set whether to include the remitter's bank account number and BSB in the descriptive record
+     * header. Defaults to true for historic reasons. Some banks will require you to change this to
+     * false.
+     *
+     * @param bool $value
+     * @return $this
+     */
+    public function setIncludeAccountNumberInDescriptiveRecord($value)
+    {
+        $this->includeAccountNumberInDescriptiveRecord = $value;
 
         return $this;
     }
@@ -147,14 +167,19 @@ class AbaFileGenerator
         // Record Type
         $line = self::DESCRIPTIVE_TYPE;
 
-        // BSB
-        $line .= $this->bsb;
+        if ($this->includeAccountNumberInDescriptiveRecord) {
+            // BSB
+            $line .= $this->bsb;
 
-        // Account Number
-        $line .= str_pad($this->accountNumber, 9, ' ', STR_PAD_LEFT);
+            // Account Number
+            $line .= str_pad($this->accountNumber, 9, ' ', STR_PAD_LEFT);
 
-        // Reserved - must be a single blank space
-        $line .= ' ';
+            // Reserved - must be a single blank space
+            $line .= ' ';
+        } else {
+            // Reserved - must be 17 blank spaces
+            $line .= str_repeat(' ', 17);
+        }
 
         // Sequence Number
         $line .= '01';
