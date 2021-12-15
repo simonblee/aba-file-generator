@@ -77,9 +77,14 @@ class AbaFileGenerator
      * 
      * Defaults to today.
      * 
-     * @var int|string|DateTime
+     * @var int|string|\DateTime
      */
     private $processingDate;
+
+    /**
+     * @var bool
+     */
+    private $includeAccountNumberInDescriptiveRecord = true;
 
     /**
      * Validates that the BSB is 6 digits with a dash in the middle: 123-456
@@ -101,11 +106,26 @@ class AbaFileGenerator
     /**
      * Set the processing date.
      * 
-     * @param int|string|DateTime $date
+     * @param int|string|\DateTime $date
      */
     public function setProcessingDate($date)
     {
         $this->processingDate = $date;
+
+        return $this;
+    }
+
+    /**
+     * Set whether to include the remitter's bank account number and BSB in the descriptive record
+     * header. Defaults to true for historic reasons. Some banks will require you to change this to
+     * false.
+     *
+     * @param bool $value
+     * @return $this
+     */
+    public function setIncludeAccountNumberInDescriptiveRecord($value)
+    {
+        $this->includeAccountNumberInDescriptiveRecord = $value;
 
         return $this;
     }
@@ -147,14 +167,19 @@ class AbaFileGenerator
         // Record Type
         $line = self::DESCRIPTIVE_TYPE;
 
-        // BSB
-        $line .= $this->bsb;
+        if ($this->includeAccountNumberInDescriptiveRecord) {
+            // BSB
+            $line .= $this->bsb;
 
-        // Account Number
-        $line .= str_pad($this->accountNumber, 9, ' ', STR_PAD_LEFT);
+            // Account Number
+            $line .= str_pad($this->accountNumber, 9, ' ', STR_PAD_LEFT);
 
-        // Reserved - must be a single blank space
-        $line .= ' ';
+            // Reserved - must be a single blank space
+            $line .= ' ';
+        } else {
+            // Reserved - must be 17 blank spaces
+            $line .= str_repeat(' ', 17);
+        }
 
         // Sequence Number
         $line .= '01';
@@ -315,8 +340,16 @@ class AbaFileGenerator
             throw new Exception('Detail record transaction indicator is invalid. Must be one of W, X, Y or null.');
         }
 
+        if (! preg_match('/^[\d]{0,10}$/', $transaction->getAmount())) {
+            throw new Exception('Detail record amount is invalid. Must be expressed in cents, as an unsigned integer, no longer than 10 digits.');
+        }
+
+        if (strlen($transaction->getAccountName()) > 32) {
+            throw new Exception('Detail record account name is invalid. Cannot exceed 32 characters.');
+        }
+
         if (! preg_match('/^[A-Za-z0-9\s+]{0,18}$/', $transaction->getReference())) {
-            throw new Exception('Detail record reference is invalid: "'.$transaction->getReference().'". Must be letters only and up to 18 characters long.');
+            throw new Exception('Detail record reference is invalid: "'.$transaction->getReference().'". Must be letters or numbers only and up to 18 characters long.');
         }
 
         if ($transaction->getRemitter() && ! preg_match('/^[A-Za-z\s+]{0,16}$/', $transaction->getRemitter())) {

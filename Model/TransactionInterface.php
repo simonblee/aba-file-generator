@@ -15,7 +15,7 @@ interface TransactionInterface
     const DEBENTURE_OR_NOTE_INTEREST = '57';
 
     /**
-     * Bank account name for this transaction.
+     * Bank account name for this transaction. Must be 32 characters or less.
      *
      * @return string
      */

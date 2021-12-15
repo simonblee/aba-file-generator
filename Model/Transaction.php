@@ -60,6 +60,10 @@ class Transaction implements TransactionInterface
         return $this->amount;
     }
 
+    /**
+     * @param integer $amount The transaction amount in cents.
+     * @return $this
+     */
     public function setAmount($amount)
     {
         $this->amount = $amount;
